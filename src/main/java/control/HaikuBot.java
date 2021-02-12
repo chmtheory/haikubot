@@ -4,15 +4,9 @@ import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.presence.Presence;
-import discord4j.discordjson.json.ActivityUpdateRequest;
 import haiku.HaikuGen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.security.auth.login.LoginException;
-import java.util.function.BiConsumer;
-
 
 public class HaikuBot implements HaikuListener {
 
@@ -31,6 +25,17 @@ public class HaikuBot implements HaikuListener {
     public void start() {
         window = new HaikuWindow();
         window.setup();
+
+        window.postMessage("Attempting to load haiku lines from config directory...");
+        HaikuGen.loadLines(window);
+
+        if (HaikuGen.willProbablyNotWork()) {
+            window.postMessage("WARNING: No lines loaded for one or more sections. The bot will not function properly!");
+        } else {
+            window.postMessage("Done!");
+        }
+
+        postIntroMessage(window);
         window.registerListener(this);
     }
 
@@ -74,9 +79,17 @@ public class HaikuBot implements HaikuListener {
     @Override
     public void notifyMessage(String message) {
         if (message.equalsIgnoreCase("help")) {
-            window.postMessage("No one is around to help.");
+            postCommandHelp(window);
+        } else if (message.equalsIgnoreCase("reload")) {
+            window.postMessage("Attempting to reload haiku lines from config directory...");
+            if (HaikuGen.willProbablyNotWork()) {
+                window.postMessage("WARNING: No lines loaded for one or more sections. The bot will not function properly!");
+            } else {
+                window.postMessage("Done!");
+            }
         } else {
             if (token == null) {
+                window.postMessage("Attempting to login with token: " + message);
                 this.token = message;
                 connect();
             } else {
@@ -100,5 +113,24 @@ public class HaikuBot implements HaikuListener {
     @Override
     public void notifyShutdown() {
         disconnect(true);
+    }
+
+    private void postIntroMessage(HaikuWindow window) {
+        window.postMessage("======= HAIKU BOT =======");
+        window.postMessage("For help, use the 'help' command.");
+        window.postMessage("To start, please input a bot token.");
+    }
+
+    private void postCommandHelp(HaikuWindow window) {
+        postLine(window);
+        window.postMessage("help: display this again");
+        window.postMessage("reload: attempt to reload haiku lines from config directory");
+        window.postMessage("connect: reconnect the bot if it is disconnected");
+        window.postMessage("disconnect: disconnect the bot, if connected");
+        postLine(window);
+    }
+
+    private void postLine(HaikuWindow window) {
+        window.postMessage("=======================");
     }
 }

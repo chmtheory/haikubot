@@ -50,6 +50,12 @@
             <artifactId>flatlaf</artifactId>
             <version>1.0-rc3</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.reactivestreams</groupId>
+            <artifactId>reactive-streams</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>
