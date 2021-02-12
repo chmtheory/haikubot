@@ -82,6 +82,7 @@ public class HaikuBot implements HaikuListener {
             postCommandHelp(window);
         } else if (message.equalsIgnoreCase("reload")) {
             window.postMessage("Attempting to reload haiku lines from config directory...");
+            HaikuGen.reloadLines(window);
             if (HaikuGen.willProbablyNotWork()) {
                 window.postMessage("WARNING: No lines loaded for one or more sections. The bot will not function properly!");
             } else {
